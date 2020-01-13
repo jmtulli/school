@@ -1,8 +1,9 @@
 package br.tulli.jm.view;
 
 public class LoginWindow extends javax.swing.JFrame {
+	private static final long serialVersionUID = 1L;
 
-    public LoginWindow() {
+	public LoginWindow() {
         initComponents();
         configureComponents();
 
@@ -50,6 +51,7 @@ public class LoginWindow extends javax.swing.JFrame {
 
     private void jBtnLoginOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnLoginOkActionPerformed
         new MainWindow();
+        this.setVisible(false);
         this.dispose();
     }//GEN-LAST:event_jBtnLoginOkActionPerformed
 
