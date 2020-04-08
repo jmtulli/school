@@ -39,12 +39,6 @@ public class MainWindow extends JFrame {
   }
 
   private void initComponents() {
-    // try {
-    // UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
-
     Container contentPane = this.getContentPane();
     jPanelAlarmPanel = new javax.swing.JPanel();
     jLabelDateTime = new javax.swing.JLabel();
@@ -85,36 +79,6 @@ public class MainWindow extends JFrame {
     this.setLocationRelativeTo(null);
     configureMenuBar();
     Util.defineLookAndFeel(LookAndFeelTypes.NIMBUS);
-
-    // FIXME
-    // RegisterWindow window = new RegisterWindow();
-    // window.setClosable(true);
-    // window.setIconifiable(true);
-    // window.setMaximizable(true);
-    // window.setTitle("Teste");
-    // window.setMaximumSize(new java.awt.Dimension(1280, 825));
-    // window.setMinimumSize(new java.awt.Dimension(1280, 825));
-    // window.setPreferredSize(new java.awt.Dimension(1280, 825));
-    // window.setBorder(null);
-    //// window.setVisible(true);
-    //// window.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
-    // window.setBounds(100, 100, 300, 300);
-    // Container pane = window.getContentPane();
-    // pane.setForeground(new Color(100,100,100));
-    // pane.setLayout(new FlowLayout());
-    // JButton button = new JButton("Teste");
-    // button.setSize(20, 20);
-    // button.addActionListener(new ActionListener() {
-    // @Override
-    // public void actionPerformed(ActionEvent e) {
-    // addScreen(registerWindow);
-    // }
-    // });
-    // addButton(button, BorderLayout.SOUTH);
-    // pane.add(button);
-    // addScreen(window);
-    // addButton(button);
-
     this.setVisible(true);
   }
 
@@ -140,7 +104,6 @@ public class MainWindow extends JFrame {
     } catch (IOException e) {
       // FIXME add log
       e.printStackTrace();
-      System.out.println("\n\nError: " + e);
     }
 
   }
