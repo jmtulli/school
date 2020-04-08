@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -25,11 +27,12 @@ import br.tulli.jm.view.systemconfig.UserGroupView;
 public class MainWindow extends JFrame {
 
   private User user;
+  private Timer timer = new Timer();
+  private TimerTask timerTask;
 
   public MainWindow(User user) {
     super("School Management - User " + user.getName());
     this.user = user;
-    System.out.println("user " + user.getName());
     initComponents();
     configureComponents();
     configureWindow();
@@ -66,6 +69,14 @@ public class MainWindow extends JFrame {
     contentPane.add(jPanelMainPanel);
 
     pack();
+
+    timerTask = new TimerTask() {
+      @Override
+      public void run() {
+        updateTime();
+      }
+    };
+    timer.schedule(timerTask, DateTimeUtil.getCurrentTime(), 10 * 1000);
   }
 
   public void configureComponents() {
@@ -109,7 +120,6 @@ public class MainWindow extends JFrame {
 
   public void configureWindow() {
     Util.defineLookAndFeel(LookAndFeelTypes.NIMBUS);
-    this.jLabelDateTime.setText(DateTimeUtil.dateTimeFormat() + " ");
     setWindowIcon("images/MiniLogo.png");
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     this.setBounds(100, 100, Math.round(screenSize.width * 0.8F), Math.round(screenSize.height * 0.8F));
@@ -174,6 +184,10 @@ public class MainWindow extends JFrame {
     addMenu(system, 2);
   }
 
+  private void updateTime() {
+    jLabelDateTime.setText(DateTimeUtil.dateTimeFormat() + " ");
+  }
+
   private void jMnItmUserProfilesActionPerformed(ActionEvent e) {
     UserGroupView window = new UserGroupView(user);
     window.setClosable(true);
@@ -184,7 +198,8 @@ public class MainWindow extends JFrame {
   }
 
   public void closeWindow() {
-    System.out.println("fechando...");
+    timer.cancel();
+    timerTask.cancel();
     System.exit(0);
   }
 

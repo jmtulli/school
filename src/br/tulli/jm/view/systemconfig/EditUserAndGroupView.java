@@ -47,7 +47,7 @@ public class EditUserAndGroupView extends JDialog {
       fillUserData(data);
     }
     this.setLocationRelativeTo(parent);
-    
+
   }
 
   private void clean() {
@@ -69,7 +69,6 @@ public class EditUserAndGroupView extends JDialog {
 
   private void fillUserData(UserGroupTo data) {
     txtUserName.setText(data.getUserName());
-    System.out.println("pass |" + Cryptography.decrypt(data.getPassword()) + "|");
     pswField.setText(Cryptography.decrypt(data.getPassword()));
     pswFieldRepeat.setText(Cryptography.decrypt(data.getPassword()));
     cmbGroups.getModel().setSelectedItem(data.getGroup());

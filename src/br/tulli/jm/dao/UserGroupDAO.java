@@ -47,7 +47,6 @@ public class UserGroupDAO {
         return true;
       }
     } catch (SQLException e) {
-      System.out.println("Exception");
       return false;
     }
     return false;
