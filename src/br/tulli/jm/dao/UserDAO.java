@@ -13,7 +13,7 @@ public class UserDAO {
   private static Connection connection;
   private static User user = null;
 
-  public UserDAO() {
+  static {
     connection = new ConnectSchool().getConnection();
   }
 

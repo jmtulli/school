@@ -3,6 +3,7 @@ package br.tulli.jm.view.login;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.sql.Connection;
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -10,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+
 import br.tulli.jm.dao.ConnectSchool;
 import br.tulli.jm.dao.UserDAO;
 import br.tulli.jm.model.User;
@@ -21,6 +23,15 @@ import br.tulli.jm.view.main.MainWindow;
 public class LoginWindow extends javax.swing.JDialog {
   private static final long serialVersionUID = 1L;
   private User user = null;
+  private JPanel panelData;
+  private JPanel panelButtons;
+  private JButton jBtnLoginCancel;
+  private JButton jBtnLoginOk;
+  private JLabel jLblLoading;
+  private JLabel jLblUser;
+  private JLabel jLblPassword;
+  private JTextField jTxtUser;
+  private JPasswordField jPswPassword;
 
   public LoginWindow() {
     super();
@@ -44,7 +55,6 @@ public class LoginWindow extends javax.swing.JDialog {
     jTxtUser = new JTextField();
     jPswPassword = new JPasswordField();
 
-    // Configure window
     setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
     setTitle("System login");
     setResizable(false);
@@ -101,6 +111,26 @@ public class LoginWindow extends javax.swing.JDialog {
     pack();
   }
 
+  private void configureComponents() {
+    this.setResizable(false);
+    this.setSize(324, 173);
+    this.setLocationRelativeTo(null);
+    Util.defineLookAndFeel(LookAndFeelTypes.METAL);
+    try {
+      ImageIcon windowIcon = new ImageIcon(Util.getImage("images/Login.png"));
+      this.setIconImage(windowIcon.getImage());
+      ImageIcon imageIcon = new ImageIcon(this.getClass().getClassLoader().getResource("images/LoadingLogin.gif"));
+
+      this.jLblLoading.setIcon(imageIcon);
+      imageIcon.setImageObserver(jLblLoading);
+      this.jLblLoading.setVisible(false);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    this.setVisible(true);
+  }
+
+
   private void jBtnLoginOkActionPerformed(java.awt.event.ActionEvent evt) {
 
     // String password = new String(jPswPassword.getPassword());
@@ -129,25 +159,6 @@ public class LoginWindow extends javax.swing.JDialog {
     new LoginWindow();
   }
 
-  private void configureComponents() {
-    this.setResizable(false);
-    this.setSize(324, 173);
-    this.setLocationRelativeTo(null);
-    Util.defineLookAndFeel(LookAndFeelTypes.METAL);
-    try {
-      ImageIcon windowIcon = new ImageIcon(Util.getImage("images/Login.png"));
-      this.setIconImage(windowIcon.getImage());
-      ImageIcon imageIcon = new ImageIcon(this.getClass().getClassLoader().getResource("images/LoadingLogin.gif"));
-      
-      this.jLblLoading.setIcon(imageIcon);
-      imageIcon.setImageObserver(jLblLoading);
-      this.jLblLoading.setVisible(false);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    this.setVisible(true);
-  }
-
   private boolean isValidUser() {
     Connection connection = new ConnectSchool().getConnection();
     if (connection != null) {
@@ -164,13 +175,4 @@ public class LoginWindow extends javax.swing.JDialog {
     return false;
   }
 
-  private JPanel panelData;
-  private JPanel panelButtons;
-  private JButton jBtnLoginCancel;
-  private JButton jBtnLoginOk;
-  private JLabel jLblLoading;
-  private JLabel jLblUser;
-  private JLabel jLblPassword;
-  private JTextField jTxtUser;
-  private JPasswordField jPswPassword;
 }

@@ -8,18 +8,10 @@ public class DateTimeUtil {
   private final static String DEFAULT_DATE_TIME_FORMAT = "dd/MM/yyyy HH:mm";
 
   public static String dateTimeFormat() {
-    return dateTimeFormat(null, null);
+    return dateTimeFormat(DEFAULT_DATE_TIME_FORMAT, getCurrentTime());
   }
 
   public static String dateTimeFormat(String format, Date date) {
-    if (format == null) {
-      format = DEFAULT_DATE_TIME_FORMAT;
-    }
-
-    if (date == null) {
-      date = getCurrentTime();
-    }
-
     SimpleDateFormat formatter = new SimpleDateFormat(format);
     return formatter.format(date);
   }

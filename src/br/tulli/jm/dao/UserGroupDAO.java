@@ -13,25 +13,23 @@ import br.tulli.jm.model.UserGroupTo;
 public class UserGroupDAO {
   private static Connection connection = null;
 
-  public UserGroupDAO() {
+  static {
     connection = new ConnectSchool().getConnection();
   }
 
   public List<UserGroupTo> findAllUserGroup() {
     List<UserGroupTo> result = new ArrayList<>();
     String query = "select u.userId, u.name, u.password, ug.groupid, ug.name from user as u inner join user_group as ug where u.groupid = ug.groupid order by u.name asc";
-    if (connection != null) {
-      try {
-        PreparedStatement statement = connection.prepareStatement(query);
-        statement.execute();
-        ResultSet resultSet = statement.getResultSet();
-        while (resultSet.next()) {
-          UserGroupTo userGroup = new UserGroupTo(resultSet.getInt(1), resultSet.getString(2), resultSet.getString(3), new Group(resultSet.getInt(4), resultSet.getString(5)));
-          result.add(userGroup);
-        }
-      } catch (SQLException e) {
-        e.printStackTrace();
+    try {
+      PreparedStatement statement = connection.prepareStatement(query);
+      statement.execute();
+      ResultSet resultSet = statement.getResultSet();
+      while (resultSet.next()) {
+        UserGroupTo userGroup = new UserGroupTo(resultSet.getInt(1), resultSet.getString(2), resultSet.getString(3), new Group(resultSet.getInt(4), resultSet.getString(5)));
+        result.add(userGroup);
       }
+    } catch (SQLException e) {
+      e.printStackTrace();
     }
     return result;
   }

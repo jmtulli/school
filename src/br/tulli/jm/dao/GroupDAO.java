@@ -13,21 +13,19 @@ public class GroupDAO {
   private static Connection connection;
   private static Group group = null;
 
-  public GroupDAO() {
+  static {
     connection = new ConnectSchool().getConnection();
   }
 
   public List<Group> findAllGroups() throws SQLException {
     List<Group> groups = new ArrayList<>();
     String query = "select * from user_group";
-    if (connection != null) {
-      PreparedStatement ps = connection.prepareStatement(query);
-      ps.execute();
-      ResultSet resultSet = ps.getResultSet();
-      while (resultSet.next()) {
-        group = new Group(resultSet.getInt(1), resultSet.getString(2));
-        groups.add(group);
-      }
+    PreparedStatement ps = connection.prepareStatement(query);
+    ps.execute();
+    ResultSet resultSet = ps.getResultSet();
+    while (resultSet.next()) {
+      group = new Group(resultSet.getInt(1), resultSet.getString(2));
+      groups.add(group);
     }
     return groups;
   }
@@ -38,7 +36,7 @@ public class GroupDAO {
     ps.setInt(1, id);
     ps.execute();
     ResultSet resultSet = ps.getResultSet();
-    while (resultSet.next()) {
+    if (resultSet.next()) {
       group = new Group(resultSet.getInt(1), resultSet.getString(2));
       return group;
     }

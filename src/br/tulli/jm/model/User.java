@@ -7,14 +7,14 @@ public class User {
   private String password;
   private int groupId;
 
-  public int getUserId() {
-    return userId;
-  }
-
   public User(Integer userId, String name, String password) {
     this.userId = userId;
     this.name = name;
     this.password = password;
+  }
+
+  public int getUserId() {
+    return userId;
   }
 
   public String getPassword() {

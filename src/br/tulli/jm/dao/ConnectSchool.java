@@ -6,16 +6,17 @@ import java.sql.SQLException;
 
 public class ConnectSchool {
 
-  private final String DB_URL = "jdbc:mysql://localhost/db_school?useSSL=false&allowPublicKeyRetrieval=true";
-  private final String DB_USER = "root";
-  private final String DB_PASS = "root";
+  private final static String DB_URL = "jdbc:mysql://localhost/db_school?useSSL=false&allowPublicKeyRetrieval=true";
+  private final static String DB_USER = "root";
+  private final static String DB_PASS = "root";
   private static Connection connection = null;
 
-  public ConnectSchool() {
+  static {
     connect();
   }
 
-  private void connect() {
+  private static void connect() {
+    System.out.println("connecting");
     try {
       if (connection == null) {
         connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);

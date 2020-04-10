@@ -31,15 +31,18 @@ import br.tulli.jm.util.Cryptography;
 import br.tulli.jm.util.Util;
 
 public class EditUserAndGroupView extends JDialog {
+  private int userId;
+  private UserGroupView parent;
+  private String operation;
+  private JComboBox<Group> cmbGroups;
+  private JTextField txtUserName;
+  private JPasswordField pswField;
+  private JPasswordField pswFieldRepeat;
 
-  public EditUserAndGroupView(UserGroupView parent) {
-    this(null, true, null, parent);
-  }
-
-  public EditUserAndGroupView(Frame frame, Boolean modal, UserGroupTo data, UserGroupView parent) {
+  public EditUserAndGroupView(Frame frame, Boolean modal, String operation, UserGroupTo data, UserGroupView parent) {
     super(frame, modal);
     this.parent = parent;
-    this.data = data;
+    this.operation = operation;
     initComponents();
     clean();
     fillGroups();
@@ -48,61 +51,6 @@ public class EditUserAndGroupView extends JDialog {
     }
     this.setLocationRelativeTo(parent);
 
-  }
-
-  private void clean() {
-    cmbGroups.removeAll();
-    txtUserName.setText(null);
-    pswField.setText(null);
-    pswFieldRepeat.setText(null);
-  }
-
-  private void fillGroups() {
-    try {
-      for (Group g : new GroupDAO().findAllGroups()) {
-        cmbGroups.addItem(g);
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void fillUserData(UserGroupTo data) {
-    txtUserName.setText(data.getUserName());
-    pswField.setText(Cryptography.decrypt(data.getPassword()));
-    pswFieldRepeat.setText(Cryptography.decrypt(data.getPassword()));
-    cmbGroups.getModel().setSelectedItem(data.getGroup());
-    userId = data.getUserId();
-  }
-
-  private void saveUser() {
-    if (isValidUser()) {
-      UserDAO dao = new UserDAO();
-      if (data == null) {
-        if (dao.insertNewUser(txtUserName.getText(), Cryptography.encrypt(new String(pswField.getPassword())), ((Group) cmbGroups.getSelectedItem()).getGroupId())) {
-          Util.showInformationMessage("User added!");
-          dispose();
-          parent.refreshScreen();
-        } else {
-          Util.showErrorMessage("Error while creating new user");
-        }
-      } else {
-        if (dao.updateUser(txtUserName.getText(), Cryptography.encrypt(new String(pswField.getPassword())), ((Group) cmbGroups.getSelectedItem()).getGroupId(), userId)) {
-          EditUserAndGroupView.this.dispose();
-          Util.showInformationMessage("User updated!");
-          this.dispose();
-          parent.refreshScreen();
-        } else {
-          Util.showErrorMessage("Error while updating the user");
-        }
-      }
-    } else {
-      Util.showErrorMessage("Invalid data. Please correct.");
-    }
-  }
-
-  private boolean isValidUser() {
-    return txtUserName.getText() != null && pswField.getPassword() != null && pswFieldRepeat.getPassword() != null && Arrays.equals(pswField.getPassword(), pswFieldRepeat.getPassword());
   }
 
   private void initComponents() {
@@ -225,11 +173,58 @@ public class EditUserAndGroupView extends JDialog {
 
   }
 
-  private int userId;
-  private UserGroupView parent;
-  private UserGroupTo data = null;
-  private JComboBox<Group> cmbGroups;
-  private JTextField txtUserName;
-  private JPasswordField pswField;
-  private JPasswordField pswFieldRepeat;
+  private void clean() {
+    cmbGroups.removeAll();
+    txtUserName.setText(null);
+    pswField.setText(null);
+    pswFieldRepeat.setText(null);
+  }
+
+  private void fillGroups() {
+    try {
+      for (Group g : new GroupDAO().findAllGroups()) {
+        cmbGroups.addItem(g);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void fillUserData(UserGroupTo data) {
+    txtUserName.setText(data.getUserName());
+    pswField.setText(Cryptography.decrypt(data.getPassword()));
+    pswFieldRepeat.setText(Cryptography.decrypt(data.getPassword()));
+    cmbGroups.getModel().setSelectedItem(data.getGroup());
+    userId = data.getUserId();
+  }
+
+  private void saveUser() {
+    if (isValidUser()) {
+      UserDAO dao = new UserDAO();
+      if ("NEW".equals(operation)) {
+        if (dao.insertNewUser(txtUserName.getText(), Cryptography.encrypt(new String(pswField.getPassword())), ((Group) cmbGroups.getSelectedItem()).getGroupId())) {
+          Util.showInformationMessage("User added!");
+          dispose();
+          parent.refreshScreen();
+        } else {
+          Util.showErrorMessage("Error while creating new user");
+        }
+      } else {
+        if (dao.updateUser(txtUserName.getText(), Cryptography.encrypt(new String(pswField.getPassword())), ((Group) cmbGroups.getSelectedItem()).getGroupId(), userId)) {
+          Util.showInformationMessage("User updated!");
+          this.dispose();
+          parent.refreshScreen();
+        } else {
+          Util.showErrorMessage("Error while updating the user");
+        }
+      }
+    } else {
+      Util.showErrorMessage("Invalid data. Please correct.");
+    }
+  }
+
+  private boolean isValidUser() {
+    return txtUserName.getText() != null && pswField.getPassword() != null && pswFieldRepeat.getPassword() != null && Arrays.equals(pswField.getPassword(), pswFieldRepeat.getPassword());
+  }
+
 }

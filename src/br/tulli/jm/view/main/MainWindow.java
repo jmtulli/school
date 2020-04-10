@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import br.tulli.jm.dao.ConnectSchool;
 import br.tulli.jm.dao.UserDAO;
 import br.tulli.jm.model.User;
 import br.tulli.jm.util.DateTimeUtil;
@@ -25,10 +26,13 @@ import br.tulli.jm.util.Util.LookAndFeelTypes;
 import br.tulli.jm.view.systemconfig.UserGroupView;
 
 public class MainWindow extends JFrame {
-
   private User user;
   private Timer timer = new Timer();
   private TimerTask timerTask;
+  private javax.swing.JDesktopPane jPanelMainPanel;
+  private javax.swing.JLabel jLabelDateTime;
+  private javax.swing.JMenuBar jMenuBarMainMenu;
+  private javax.swing.JPanel jPanelAlarmPanel;
 
   public MainWindow(User user) {
     super("School Management - User " + user.getName());
@@ -112,11 +116,31 @@ public class MainWindow extends JFrame {
     confirmExit();
   }
 
+  private void jMnItmUserProfilesActionPerformed(ActionEvent e) {
+    UserGroupView window = new UserGroupView(user);
+    window.setClosable(true);
+    window.setIconifiable(true);
+    window.setMaximizable(true);
+    jPanelMainPanel.add(window);
+    window.setVisible(true);
+  }
+
   private void confirmExit() {
     if (Util.showMessageDialog("Do you really want to quit the system?", "Confirm system exit") == 0) {
       new UserDAO().closeConnection();
       closeWindow();
     }
+  }
+
+  private void updateTime() {
+    jLabelDateTime.setText(DateTimeUtil.dateTimeFormat() + " ");
+  }
+
+  public void closeWindow() {
+    timer.cancel();
+    timerTask.cancel();
+    new ConnectSchool().closeConnection();
+    System.exit(0);
   }
 
   private void configureMenuBar() {
@@ -147,25 +171,6 @@ public class MainWindow extends JFrame {
     addMenu(system, 2);
   }
 
-  private void updateTime() {
-    jLabelDateTime.setText(DateTimeUtil.dateTimeFormat() + " ");
-  }
-
-  private void jMnItmUserProfilesActionPerformed(ActionEvent e) {
-    UserGroupView window = new UserGroupView(user);
-    window.setClosable(true);
-    window.setIconifiable(true);
-    window.setMaximizable(true);
-    jPanelMainPanel.add(window);
-    window.setVisible(true);
-  }
-
-  public void closeWindow() {
-    timer.cancel();
-    timerTask.cancel();
-    System.exit(0);
-  }
-
   public void addMenu(JMenu menu) {
     addMenu(menu, -1);
   }
@@ -193,9 +198,4 @@ public class MainWindow extends JFrame {
     menu.add(menuItem);
   }
 
-  // Variables declaration
-  private javax.swing.JDesktopPane jPanelMainPanel;
-  private javax.swing.JLabel jLabelDateTime;
-  private javax.swing.JMenuBar jMenuBarMainMenu;
-  private javax.swing.JPanel jPanelAlarmPanel;
 }
