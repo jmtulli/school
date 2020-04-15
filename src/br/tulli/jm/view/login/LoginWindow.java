@@ -3,7 +3,9 @@ package br.tulli.jm.view.login;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.sql.Connection;
+import java.sql.SQLException;
 
+import javax.naming.CommunicationException;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -32,6 +34,7 @@ public class LoginWindow extends javax.swing.JDialog {
   private JLabel jLblPassword;
   private JTextField jTxtUser;
   private JPasswordField jPswPassword;
+  private Connection connection = null;
 
   public LoginWindow() {
     super();
@@ -141,13 +144,24 @@ public class LoginWindow extends javax.swing.JDialog {
     // System.out.println("descriptografada: [" + decrip + "]");
 
     this.jLblLoading.setVisible(true);
-    if (isValidUser()) {
-      new MainWindow(user);
-      this.setVisible(false);
-      this.dispose();
-    } else {
-      Util.showErrorMessage("Invalid user/password!");
-      this.jLblLoading.setVisible(false);
+    try {
+      getDBConnection();
+    } catch (CommunicationException e) {
+      Util.showErrorMessage(e.getMessage());
+      System.exit(ERROR);
+    }
+    try {
+      if (isValidUser()) {
+        new MainWindow(user);
+        this.setVisible(false);
+        this.dispose();
+      } else {
+        Util.showErrorMessage("Invalid user/password!");
+        this.jLblLoading.setVisible(false);
+      }
+    } catch (SQLException e) {
+      Util.showErrorMessage(e.getMessage());
+      System.exit(ERROR);
     }
   }
 
@@ -159,18 +173,23 @@ public class LoginWindow extends javax.swing.JDialog {
     new LoginWindow();
   }
 
-  private boolean isValidUser() {
-    Connection connection = new ConnectSchool().getConnection();
-    if (connection != null) {
-      UserDAO dao = new UserDAO();
-      try {
-        user = dao.findUserByName(jTxtUser.getText());
-        if (user != null && user.getPassword() != null && !user.getPassword().isEmpty()) {
-          return user.getPassword().equals(Cryptography.encrypt(new String(jPswPassword.getPassword())));
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
+  private void getDBConnection() throws CommunicationException {
+    connection = ConnectSchool.getConnection();
+    if (connection == null) {
+      throw new CommunicationException("Error when connecting to database.");
+    }
+  }
+
+  private boolean isValidUser() throws SQLException {
+    UserDAO dao = new UserDAO();
+    try {
+      user = dao.findUserByName(jTxtUser.getText());
+      if (user != null && user.getPassword() != null && !user.getPassword().isEmpty()) {
+        return user.getPassword().equals(Cryptography.encrypt(new String(jPswPassword.getPassword())));
       }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException("Error finding user in the database.");
     }
     return false;
   }

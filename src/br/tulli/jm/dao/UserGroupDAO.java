@@ -14,7 +14,7 @@ public class UserGroupDAO {
   private static Connection connection = null;
 
   static {
-    connection = new ConnectSchool().getConnection();
+    connection = ConnectSchool.getConnection();
   }
 
   public List<UserGroupTo> findAllUserGroup() {
@@ -30,6 +30,13 @@ public class UserGroupDAO {
       }
     } catch (SQLException e) {
       e.printStackTrace();
+    } finally {
+      try {
+        connection.rollback();
+      } catch (SQLException e) {
+        System.err.println("Error when reverting operation in database. Error: " + e.getMessage());
+        e.printStackTrace();
+      }
     }
     return result;
   }
@@ -45,7 +52,15 @@ public class UserGroupDAO {
         return true;
       }
     } catch (SQLException e) {
+      System.err.println("Error when consulting database. Error: " + e.getMessage());
       return false;
+    } finally {
+      try {
+        connection.rollback();
+      } catch (SQLException e) {
+        System.err.println("Error when reverting operation in database. Error: " + e.getMessage());
+        e.printStackTrace();
+      }
     }
     return false;
   }

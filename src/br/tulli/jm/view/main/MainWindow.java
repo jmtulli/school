@@ -18,7 +18,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import br.tulli.jm.dao.ConnectSchool;
-import br.tulli.jm.dao.UserDAO;
 import br.tulli.jm.model.User;
 import br.tulli.jm.util.DateTimeUtil;
 import br.tulli.jm.util.Util;
@@ -107,6 +106,7 @@ public class MainWindow extends JFrame {
       this.setIconImage(windowIcon.getImage());
     } catch (IOException e) {
       // FIXME add log
+      System.err.println("Error when setting window icon. Error: " + e.getMessage());
       e.printStackTrace();
     }
 
@@ -127,7 +127,7 @@ public class MainWindow extends JFrame {
 
   private void confirmExit() {
     if (Util.showMessageDialog("Do you really want to quit the system?", "Confirm system exit") == 0) {
-      new UserDAO().closeConnection();
+      ConnectSchool.closeConnection();
       closeWindow();
     }
   }
@@ -139,7 +139,7 @@ public class MainWindow extends JFrame {
   public void closeWindow() {
     timer.cancel();
     timerTask.cancel();
-    new ConnectSchool().closeConnection();
+    ConnectSchool.closeConnection();
     System.exit(0);
   }
 

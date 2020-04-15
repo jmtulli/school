@@ -14,7 +14,7 @@ public class GroupDAO {
   private static Group group = null;
 
   static {
-    connection = new ConnectSchool().getConnection();
+    connection = ConnectSchool.getConnection();
   }
 
   public List<Group> findAllGroups() throws SQLException {
@@ -27,6 +27,7 @@ public class GroupDAO {
       group = new Group(resultSet.getInt(1), resultSet.getString(2));
       groups.add(group);
     }
+    connection.rollback();
     return groups;
   }
 
@@ -38,6 +39,7 @@ public class GroupDAO {
     ResultSet resultSet = ps.getResultSet();
     if (resultSet.next()) {
       group = new Group(resultSet.getInt(1), resultSet.getString(2));
+      connection.rollback();
       return group;
     }
     return null;

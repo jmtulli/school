@@ -202,19 +202,21 @@ public class EditUserAndGroupView extends JDialog {
     if (isValidUser()) {
       UserDAO dao = new UserDAO();
       if ("NEW".equals(operation)) {
-        if (dao.insertNewUser(txtUserName.getText(), Cryptography.encrypt(new String(pswField.getPassword())), ((Group) cmbGroups.getSelectedItem()).getGroupId())) {
+        try {
+          dao.insertNewUser(txtUserName.getText(), Cryptography.encrypt(new String(pswField.getPassword())), ((Group) cmbGroups.getSelectedItem()).getGroupId());
           Util.showInformationMessage("User added!");
           dispose();
           parent.refreshScreen();
-        } else {
+        } catch (SQLException e) {
           Util.showErrorMessage("Error while creating new user");
         }
-      } else {
-        if (dao.updateUser(txtUserName.getText(), Cryptography.encrypt(new String(pswField.getPassword())), ((Group) cmbGroups.getSelectedItem()).getGroupId(), userId)) {
+      } else if ("EDIT".equals(operation)) {
+        try {
+          dao.updateUser(txtUserName.getText(), Cryptography.encrypt(new String(pswField.getPassword())), ((Group) cmbGroups.getSelectedItem()).getGroupId(), userId);
           Util.showInformationMessage("User updated!");
           this.dispose();
           parent.refreshScreen();
-        } else {
+        } catch (SQLException e) {
           Util.showErrorMessage("Error while updating the user");
         }
       }

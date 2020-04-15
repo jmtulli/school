@@ -14,7 +14,7 @@ public class UserDAO {
   private static User user = null;
 
   static {
-    connection = new ConnectSchool().getConnection();
+    connection = ConnectSchool.getConnection();
   }
 
   public User findUserByName(String name) throws SQLException {
@@ -23,8 +23,9 @@ public class UserDAO {
     ps.setString(1, name);
     ps.execute();
     ResultSet resultSet = ps.getResultSet();
-    while (resultSet.next()) {
+    if (resultSet.next()) {
       user = new User(resultSet.getInt(1), resultSet.getString(2), resultSet.getString(3));
+      connection.rollback();
       return user;
     }
     return null;
@@ -40,10 +41,11 @@ public class UserDAO {
       user = new User(resultSet.getInt(1), resultSet.getString(2), resultSet.getString(3));
       users.add(user);
     }
+    connection.rollback();
     return users;
   }
 
-  public Boolean insertNewUser(String name, String password, Integer groupId) {
+  public void insertNewUser(String name, String password, Integer groupId) throws SQLException {
     String query = "insert into user (name, password, groupId) values (?, ?, ?)";
     PreparedStatement ps;
     try {
@@ -52,13 +54,14 @@ public class UserDAO {
       ps.setString(2, password);
       ps.setInt(3, groupId);
       ps.execute();
-      return true;
+      connection.commit();
     } catch (SQLException e) {
-      return false;
+      connection.rollback();
+      System.err.println("Error when inserting user " + name + " to database. Error: " + e.getMessage());
     }
   }
 
-  public Boolean updateUser(String name, String password, Integer groupId, Integer userId) {
+  public void updateUser(String name, String password, Integer groupId, Integer userId) throws SQLException {
     String query = "update user set name = ?, password = ?, groupId = ? where userId = ?";
     PreparedStatement ps;
     try {
@@ -68,32 +71,29 @@ public class UserDAO {
       ps.setInt(3, groupId);
       ps.setInt(4, userId);
       ps.execute();
-      return true;
+      connection.commit();
     } catch (SQLException e) {
-      return false;
+      connection.rollback();
+      System.err.println("Error when updating user " + name + " in the database. Error: " + e.getMessage());
     }
   }
 
-  public Boolean deleteUser(Integer userId) {
+  public void deleteUser(Integer userId) throws SQLException {
     String query = "delete from user where userId = ?";
     PreparedStatement ps;
     try {
       ps = connection.prepareStatement(query);
       ps.setInt(1, userId);
       ps.execute();
-      return true;
+      connection.commit();
     } catch (SQLException e) {
-      return false;
+      connection.rollback();
+      System.err.println("Error when deleting user from database. Error: " + e.getMessage());
     }
   }
 
   public User getUser() {
     return user;
-  }
-
-  // FIXME fechar conexao no lugar apropriado
-  public void closeConnection() {
-    new ConnectSchool().closeConnection();
   }
 
 }

@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class ConnectSchool {
 
-  private final static String DB_URL = "jdbc:mysql://localhost/db_school?useSSL=false&allowPublicKeyRetrieval=true";
+  private final static String DB_URL = "jdbc:mysql://localhost/db_school?useSSL=false&allowPublicKeyRetrieval=true&useTimezone=true&serverTimezone=UTC";
   private final static String DB_USER = "root";
   private final static String DB_PASS = "root";
   private static Connection connection = null;
@@ -20,21 +20,25 @@ public class ConnectSchool {
     try {
       if (connection == null) {
         connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+        connection.setAutoCommit(false);
       }
     } catch (Exception e) {
+      System.err.println("Error when connecting to database. Error: " + e.getMessage());
       e.printStackTrace();
     }
   }
 
-  public Connection getConnection() {
+  public static Connection getConnection() {
     return connection;
   }
 
-  public void closeConnection() {
+  public static void closeConnection() {
     try {
       connection.close();
     } catch (SQLException e) {
+      System.err.println("Error when closing connecting to the database. Error: " + e.getMessage());
       e.printStackTrace();
     }
   }
+
 }
