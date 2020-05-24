@@ -133,7 +133,6 @@ public class LoginWindow extends javax.swing.JDialog {
     this.setVisible(true);
   }
 
-
   private void jBtnLoginOkActionPerformed(java.awt.event.ActionEvent evt) {
 
     // String password = new String(jPswPassword.getPassword());

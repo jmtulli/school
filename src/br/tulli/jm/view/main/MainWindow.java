@@ -22,6 +22,7 @@ import br.tulli.jm.model.User;
 import br.tulli.jm.util.DateTimeUtil;
 import br.tulli.jm.util.Util;
 import br.tulli.jm.util.Util.LookAndFeelTypes;
+import br.tulli.jm.view.systemconfig.EmailView;
 import br.tulli.jm.view.systemconfig.UserGroupView;
 
 public class MainWindow extends JFrame {
@@ -112,8 +113,17 @@ public class MainWindow extends JFrame {
 
   }
 
-  private void jMnItmExitActionPerformed(java.awt.event.ActionEvent evt) {
+  private void jMnItmExitActionPerformed(ActionEvent evt) {
     confirmExit();
+  }
+
+  private void jMnItmSendEmailActionPerformed(ActionEvent e) {
+    EmailView window = new EmailView();
+    window.setClosable(true);
+    window.setIconifiable(true);
+    window.setMaximizable(true);
+    jPanelMainPanel.add(window);
+    window.setVisible(true);
   }
 
   private void jMnItmUserProfilesActionPerformed(ActionEvent e) {
@@ -156,6 +166,12 @@ public class MainWindow extends JFrame {
     addMenu(access, 1);
     JMenu system = new JMenu("System");
     addMenuItem(system, "System Parameters", false);
+    addMenuItem(system, "Send e-mail", true, new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        jMnItmSendEmailActionPerformed(e);
+      }
+    });
     addMenuItem(system, "Users and Profiles", true, new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
