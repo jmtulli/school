@@ -13,12 +13,17 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 
 import br.tulli.jm.dao.ConnectSchool;
 import br.tulli.jm.model.User;
+import br.tulli.jm.util.BlockingGlassPane;
 import br.tulli.jm.util.DateTimeUtil;
 import br.tulli.jm.util.Util;
 import br.tulli.jm.util.Util.LookAndFeelTypes;
@@ -29,10 +34,11 @@ public class MainWindow extends JFrame {
   private User user;
   private Timer timer = new Timer();
   private TimerTask timerTask;
-  private javax.swing.JDesktopPane jPanelMainPanel;
-  private javax.swing.JLabel jLabelDateTime;
-  private javax.swing.JMenuBar jMenuBarMainMenu;
-  private javax.swing.JPanel jPanelAlarmPanel;
+  private JDesktopPane jPanelMainPanel;
+  private JLabel jLabelDateTime;
+  private JMenuBar jMenuBarMainMenu;
+  private JPanel jPanelAlarmPanel;
+  private BlockingGlassPane glass;
 
   public MainWindow(User user) {
     super("School Management - User " + user.getName());
@@ -43,6 +49,7 @@ public class MainWindow extends JFrame {
   }
 
   private void initComponents() {
+    setResizable(false);
     Container contentPane = this.getContentPane();
     jPanelAlarmPanel = new javax.swing.JPanel();
     jLabelDateTime = new javax.swing.JLabel();
@@ -98,6 +105,8 @@ public class MainWindow extends JFrame {
         confirmExit();
       }
     });
+    glass = new BlockingGlassPane(getSize());
+    setGlassPane(glass);
   }
 
   public void setWindowIcon(String iconPath) {
@@ -118,7 +127,7 @@ public class MainWindow extends JFrame {
   }
 
   private void jMnItmSendEmailActionPerformed(ActionEvent e) {
-    EmailView window = new EmailView();
+    EmailView window = new EmailView(this.getBlockingGlass());
     window.setClosable(true);
     window.setIconifiable(true);
     window.setMaximizable(true);
@@ -214,4 +223,7 @@ public class MainWindow extends JFrame {
     menu.add(menuItem);
   }
 
+  public BlockingGlassPane getBlockingGlass() {
+    return glass;
+  }
 }

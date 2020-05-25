@@ -45,6 +45,19 @@ public class UserDAO {
     return users;
   }
 
+  public User findEMailUser() throws SQLException {
+    String query = "select * from user where groupid = (select groupid from user_group where name = 'mail')";
+    PreparedStatement ps = connection.prepareStatement(query);
+    ps.execute();
+    ResultSet resultSet = ps.getResultSet();
+    if (resultSet.next()) {
+      user = new User(resultSet.getInt(1), resultSet.getString(2), resultSet.getString(3));
+      connection.rollback();
+      return user;
+    }
+    return null;
+  }
+
   public void insertNewUser(String name, String password, Integer groupId) throws SQLException {
     String query = "insert into user (name, password, groupId) values (?, ?, ?)";
     PreparedStatement ps;
@@ -92,8 +105,8 @@ public class UserDAO {
     }
   }
 
-  public User getUser() {
-    return user;
-  }
+  // public User getUser() {
+  // return user;
+  // }
 
 }
