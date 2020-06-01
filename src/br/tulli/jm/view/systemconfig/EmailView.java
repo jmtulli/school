@@ -18,6 +18,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -46,13 +47,16 @@ public class EmailView extends JInternalFrame {
   public EmailView(BlockingGlassPane blockingGlassPane) {
     super("Send e-mail");
     this.glassPane = blockingGlassPane;
-    initComponents();
+    createComponents();
   }
 
-  private void initComponents() {
-    setBounds(100, 100, 800, 553);
-
+  private void createComponents() {
     setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    try {
+      this.setFrameIcon(new ImageIcon(Util.getImage("images/Email.png")));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     GridBagLayout gridBagLayout = new GridBagLayout();
     gridBagLayout.columnWidths = new int[] {20, 66, 100, 100, 20};
     gridBagLayout.rowHeights = new int[] {20, 30, 30, 112, 34, 23, 20};
@@ -183,7 +187,7 @@ public class EmailView extends JInternalFrame {
           doDefaultCloseAction();
         } catch (Exception e) {
           unblockScreen();
-          Util.showErrorMessage("Error sending e-mail\n" + e.getMessage());
+          Util.showErrorMessage("Error sending e-mail.\n" + e.getMessage());
           e.printStackTrace();
         }
       }

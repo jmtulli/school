@@ -4,6 +4,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import com.mysql.cj.jdbc.exceptions.CommunicationsException;
+
+import br.tulli.jm.util.Util;
+
 public class ConnectSchool {
 
   private final static String DB_URL = "jdbc:mysql://localhost/db_school?useSSL=false&allowPublicKeyRetrieval=true&useTimezone=true&serverTimezone=UTC";
@@ -22,8 +26,11 @@ public class ConnectSchool {
         connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
         connection.setAutoCommit(false);
       }
-    } catch (Exception e) {
-      System.err.println("Error when connecting to database. Error: " + e.getMessage());
+    } catch (CommunicationsException e) {
+      e.printStackTrace();
+      Util.showErrorMessage("Error when connecting to database. Check if the database service is running.\nError: " + e.getMessage());
+      System.exit(0);
+    } catch (SQLException e) {
       e.printStackTrace();
     }
   }

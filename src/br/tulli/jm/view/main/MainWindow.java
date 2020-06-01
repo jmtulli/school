@@ -15,6 +15,7 @@ import java.util.TimerTask;
 import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -39,16 +40,17 @@ public class MainWindow extends JFrame {
   private JMenuBar jMenuBarMainMenu;
   private JPanel jPanelAlarmPanel;
   private BlockingGlassPane glass;
+  private JInternalFrame openedWindow = null;
 
   public MainWindow(User user) {
     super("School Management - User " + user.getName());
     this.user = user;
-    initComponents();
+    createComponents();
     configureComponents();
     configureWindow();
   }
 
-  private void initComponents() {
+  private void createComponents() {
     setResizable(false);
     Container contentPane = this.getContentPane();
     jPanelAlarmPanel = new javax.swing.JPanel();
@@ -58,22 +60,20 @@ public class MainWindow extends JFrame {
 
     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
+    setJMenuBar(jMenuBarMainMenu);
+
     jPanelMainPanel.setBackground(new java.awt.Color(240, 240, 240));
     jPanelMainPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 255, 0)));
     jPanelMainPanel.setLayout(new BorderLayout());
 
     jPanelAlarmPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 51, 51)));
     jPanelAlarmPanel.setLayout(new BorderLayout());
-
     jLabelDateTime.setText("System Time");
     jLabelDateTime.setSize(10, 19);
     jPanelAlarmPanel.add(jLabelDateTime, BorderLayout.EAST);
-
-    setJMenuBar(jMenuBarMainMenu);
     jPanelMainPanel.add(jPanelAlarmPanel, BorderLayout.SOUTH);
-    contentPane.add(jPanelMainPanel);
 
-    pack();
+    contentPane.add(jPanelMainPanel);
 
     timerTask = new TimerTask() {
       @Override
@@ -84,16 +84,13 @@ public class MainWindow extends JFrame {
     timer.schedule(timerTask, DateTimeUtil.getCurrentTime(), 10 * 1000);
   }
 
-  public void configureComponents() {
-    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    this.setBounds(100, 100, Math.round(screenSize.width * 0.8F), Math.round(screenSize.height * 0.8F));
+  private void configureComponents() {
     this.setLocationRelativeTo(null);
     configureMenuBar();
-    Util.defineLookAndFeel(LookAndFeelTypes.NIMBUS);
     this.setVisible(true);
   }
 
-  public void configureWindow() {
+  private void configureWindow() {
     Util.defineLookAndFeel(LookAndFeelTypes.NIMBUS);
     setWindowIcon("images/MiniLogo.png");
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -119,47 +116,36 @@ public class MainWindow extends JFrame {
       System.err.println("Error when setting window icon. Error: " + e.getMessage());
       e.printStackTrace();
     }
+  }
 
+  private void jMnItmSendEmailActionPerformed(ActionEvent e) {
+    EmailView window = new EmailView(this.getBlockingGlass());
+    openWindow(window);
+  }
+
+  private void jMnItmUserProfilesActionPerformed(ActionEvent e) {
+    UserGroupView window = new UserGroupView(user);
+    openWindow(window);
   }
 
   private void jMnItmExitActionPerformed(ActionEvent evt) {
     confirmExit();
   }
 
-  private void jMnItmSendEmailActionPerformed(ActionEvent e) {
-    EmailView window = new EmailView(this.getBlockingGlass());
-    window.setClosable(true);
-    window.setIconifiable(true);
-    window.setMaximizable(true);
+  private void openWindow(JInternalFrame window) {
+    window.setClosable(false);
+    window.setIconifiable(false);
+    window.setMaximizable(false);
     jPanelMainPanel.add(window);
     window.setVisible(true);
-  }
-
-  private void jMnItmUserProfilesActionPerformed(ActionEvent e) {
-    UserGroupView window = new UserGroupView(user);
-    window.setClosable(true);
-    window.setIconifiable(true);
-    window.setMaximizable(true);
-    jPanelMainPanel.add(window);
-    window.setVisible(true);
-  }
-
-  private void confirmExit() {
-    if (Util.showMessageDialog("Do you really want to quit the system?", "Confirm system exit") == 0) {
-      ConnectSchool.closeConnection();
-      closeWindow();
+    if (openedWindow != null) {
+      openedWindow.dispose();
     }
+    openedWindow = window;
   }
 
   private void updateTime() {
     jLabelDateTime.setText(DateTimeUtil.dateTimeFormat() + " ");
-  }
-
-  public void closeWindow() {
-    timer.cancel();
-    timerTask.cancel();
-    ConnectSchool.closeConnection();
-    System.exit(0);
   }
 
   private void configureMenuBar() {
@@ -221,6 +207,20 @@ public class MainWindow extends JFrame {
     menuItem.addActionListener(listener);
     menuItem.setFont(new java.awt.Font("Arial", 0, 12));
     menu.add(menuItem);
+  }
+
+  public void closeWindow() {
+    timer.cancel();
+    timerTask.cancel();
+    ConnectSchool.closeConnection();
+    System.exit(0);
+  }
+
+  private void confirmExit() {
+    if (Util.showMessageDialog("Do you really want to quit the system?", "Confirm system exit") == 0) {
+      ConnectSchool.closeConnection();
+      closeWindow();
+    }
   }
 
   public BlockingGlassPane getBlockingGlass() {

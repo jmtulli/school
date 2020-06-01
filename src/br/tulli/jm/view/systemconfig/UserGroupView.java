@@ -35,11 +35,11 @@ public class UserGroupView extends JInternalFrame {
   public UserGroupView(User user) {
     super("User and Groups configuration");
     this.user = user;
-    initComponents();
+    createComponents();
     refreshScreen();
   }
 
-  private void initComponents() {
+  private void createComponents() {
     Boolean canEdit = checkPermission(user);
     JPanel panelData = new JPanel(new BorderLayout());
     panelData.setBorder(new SoftBevelBorder(BevelBorder.RAISED));

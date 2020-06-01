@@ -43,7 +43,7 @@ public class EditUserAndGroupView extends JDialog {
     super(frame, modal);
     this.parent = parent;
     this.operation = operation;
-    initComponents();
+    createComponents();
     clean();
     fillGroups();
     if (data != null) {
@@ -53,7 +53,7 @@ public class EditUserAndGroupView extends JDialog {
 
   }
 
-  private void initComponents() {
+  private void createComponents() {
     setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     setBounds(100, 100, 600, 300);
     setSize(300, 325);
@@ -170,7 +170,6 @@ public class EditUserAndGroupView extends JDialog {
         }
       }
     });
-
   }
 
   private void clean() {
