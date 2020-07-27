@@ -6,18 +6,24 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.activation.DataHandler;
 import javax.mail.Authenticator;
 import javax.mail.Message;
+import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
@@ -30,13 +36,16 @@ import br.tulli.jm.dao.UserDAO;
 import br.tulli.jm.model.User;
 import br.tulli.jm.util.BlockingGlassPane;
 import br.tulli.jm.util.Cryptography;
+import br.tulli.jm.util.PdfCreator;
 import br.tulli.jm.util.Util;
 
 public class EmailView extends JInternalFrame {
   private JTextField txtEmail;
+  private JTextField txtEmailAlias;
   private JTextField txtSubject;
   private JTextField txtContent;
   private JLabel lblEmail;
+  private JLabel lblEmailAlias;
   private JLabel lblSubject;
   private JLabel lblContent;
   private JButton btnCancel;
@@ -59,9 +68,9 @@ public class EmailView extends JInternalFrame {
     }
     GridBagLayout gridBagLayout = new GridBagLayout();
     gridBagLayout.columnWidths = new int[] {20, 66, 100, 100, 20};
-    gridBagLayout.rowHeights = new int[] {20, 30, 30, 112, 34, 23, 20};
+    gridBagLayout.rowHeights = new int[] {20, 30, 30, 30, 112, 34, 23, 20};
     gridBagLayout.columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0};
-    gridBagLayout.rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    gridBagLayout.rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     getContentPane().setLayout(gridBagLayout);
 
     lblEmail = new JLabel("E-mail");
@@ -82,12 +91,30 @@ public class EmailView extends JInternalFrame {
     getContentPane().add(txtEmail, gbc_txtEmail);
     txtEmail.setColumns(10);
 
+    lblEmailAlias = new JLabel("Alias");
+    GridBagConstraints gbc_lblEmailAlias = new GridBagConstraints();
+    gbc_lblEmailAlias.fill = GridBagConstraints.HORIZONTAL;
+    gbc_lblEmailAlias.insets = new Insets(0, 0, 5, 5);
+    gbc_lblEmailAlias.gridx = 1;
+    gbc_lblEmailAlias.gridy = 2;
+    getContentPane().add(lblEmailAlias, gbc_lblEmailAlias);
+
+    txtEmailAlias = new JTextField();
+    GridBagConstraints gbc_txtEmailAlias = new GridBagConstraints();
+    gbc_txtEmailAlias.fill = GridBagConstraints.HORIZONTAL;
+    gbc_txtEmailAlias.insets = new Insets(0, 0, 5, 5);
+    gbc_txtEmailAlias.gridwidth = 2;
+    gbc_txtEmailAlias.gridx = 2;
+    gbc_txtEmailAlias.gridy = 2;
+    getContentPane().add(txtEmailAlias, gbc_txtEmailAlias);
+    txtEmail.setColumns(10);
+
     lblSubject = new JLabel("Subject");
     GridBagConstraints gbc_lblSubject = new GridBagConstraints();
     gbc_lblSubject.fill = GridBagConstraints.HORIZONTAL;
     gbc_lblSubject.insets = new Insets(0, 0, 5, 5);
     gbc_lblSubject.gridx = 1;
-    gbc_lblSubject.gridy = 2;
+    gbc_lblSubject.gridy = 3;
     getContentPane().add(lblSubject, gbc_lblSubject);
 
     txtSubject = new JTextField();
@@ -96,7 +123,7 @@ public class EmailView extends JInternalFrame {
     gbc_txtSubject.insets = new Insets(0, 0, 5, 5);
     gbc_txtSubject.gridwidth = 2;
     gbc_txtSubject.gridx = 2;
-    gbc_txtSubject.gridy = 2;
+    gbc_txtSubject.gridy = 3;
     getContentPane().add(txtSubject, gbc_txtSubject);
     txtSubject.setColumns(10);
 
@@ -105,7 +132,7 @@ public class EmailView extends JInternalFrame {
     gbc_lblContent.fill = GridBagConstraints.HORIZONTAL;
     gbc_lblContent.insets = new Insets(0, 0, 5, 5);
     gbc_lblContent.gridx = 1;
-    gbc_lblContent.gridy = 3;
+    gbc_lblContent.gridy = 4;
     getContentPane().add(lblContent, gbc_lblContent);
 
     txtContent = new JTextField();
@@ -114,7 +141,7 @@ public class EmailView extends JInternalFrame {
     gbc_txtContent.insets = new Insets(0, 0, 5, 5);
     gbc_txtContent.gridwidth = 2;
     gbc_txtContent.gridx = 2;
-    gbc_txtContent.gridy = 3;
+    gbc_txtContent.gridy = 4;
     getContentPane().add(txtContent, gbc_txtContent);
     txtContent.setColumns(10);
 
@@ -126,9 +153,9 @@ public class EmailView extends JInternalFrame {
     });
     GridBagConstraints gbc_btnCancel = new GridBagConstraints();
     gbc_btnCancel.fill = GridBagConstraints.HORIZONTAL;
-    gbc_btnCancel.insets = new Insets(0, 0, 0, 5);
+    gbc_btnCancel.insets = new Insets(0, 0, 5, 5);
     gbc_btnCancel.gridx = 2;
-    gbc_btnCancel.gridy = 5;
+    gbc_btnCancel.gridy = 6;
     getContentPane().add(btnCancel, gbc_btnCancel);
     btnSend = new JButton("Send");
     btnSend.addActionListener(new ActionListener() {
@@ -140,18 +167,17 @@ public class EmailView extends JInternalFrame {
       }
     });
     GridBagConstraints gbc_btnSend = new GridBagConstraints();
-    gbc_btnSend.insets = new Insets(0, 0, 0, 5);
+    gbc_btnSend.insets = new Insets(0, 0, 5, 5);
     gbc_btnSend.fill = GridBagConstraints.HORIZONTAL;
     gbc_btnSend.gridx = 3;
-    gbc_btnSend.gridy = 5;
+    gbc_btnSend.gridy = 6;
     getContentPane().add(btnSend, gbc_btnSend);
 
     JPanel panel = new JPanel();
     panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
     GridBagConstraints gbc_panel = new GridBagConstraints();
     gbc_panel.gridwidth = 5;
-    gbc_panel.gridheight = 7;
-    gbc_panel.insets = new Insets(0, 0, 5, 5);
+    gbc_panel.gridheight = 8;
     gbc_panel.fill = GridBagConstraints.BOTH;
     gbc_panel.gridx = 0;
     gbc_panel.gridy = 0;
@@ -202,6 +228,7 @@ public class EmailView extends JInternalFrame {
 
   private Properties configureProperties() {
     Properties properties = new Properties();
+    properties.put("mail.smtp.ssl.trust", "*");
     properties.put("mail.smtp.auth", "true");
     properties.put("mail.smtp.starttls", "true");
     properties.put("mail.smtp.host", "smtp.gmail.com");
@@ -227,12 +254,35 @@ public class EmailView extends JInternalFrame {
     return Session.getInstance(properties, authenticator);
   }
 
-  private void sendMessage(Session session) throws Exception {
+  private void sendMessage(Session session) throws Exception { // https://myaccount.google.com/u/1/security
+                                                               // - ativar acesso menos seguro
+    String alias = txtEmail.getText();
+    if (!txtEmailAlias.getText().trim().isEmpty()) {
+      alias = txtEmailAlias.getText();
+    }
     InternetAddress address = new InternetAddress(txtEmail.getText());
     Message message = new MimeMessage(session);
     message.setRecipient(Message.RecipientType.TO, address);
+    message.setFrom(new InternetAddress("jm.tulli@gmail.com", alias));
     message.setSubject(txtSubject.getText());
-    message.setText(txtContent.getText());
+
+    /* Option to send HTML formatted text */
+    // message.setContent(txtContent.getText(), "text/html; charset=utf-8");
+
+    /* Option to send attachments */
+    FileInputStream pdf = PdfCreator.createPDF("attachmentTest", "Text to test PDF attachment", "More texto to include in PDF file", "Last part of pdf text");
+    MimeBodyPart bodyPart = new MimeBodyPart();
+    bodyPart.setContent(txtContent.getText(), "text/html; charset=utf-8");
+    MimeBodyPart attachmentPart = new MimeBodyPart();
+    attachmentPart.setDataHandler(new DataHandler(new ByteArrayDataSource(pdf, "application/pdf")));
+    attachmentPart.setFileName("attachmentTest");
+    Multipart multipart = new MimeMultipart();
+    multipart.addBodyPart(bodyPart);
+    multipart.addBodyPart(attachmentPart);
+    message.setContent(multipart);
+    /* Option to send attachments */
+
+    // message.setText(txtContent.getText());
     Transport.send(message);
   }
 

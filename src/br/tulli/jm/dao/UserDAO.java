@@ -105,8 +105,4 @@ public class UserDAO {
     }
   }
 
-  // public User getUser() {
-  // return user;
-  // }
-
 }
